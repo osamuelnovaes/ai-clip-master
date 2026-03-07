@@ -1,0 +1,57 @@
+name: AI Clip Master Multi-Model
+
+on:
+  workflow_dispatch:
+    inputs:
+      video_url:
+        description: 'YouTube URL to process'
+        required: true
+      llm_provider:
+        description: 'Choose AI Provider'
+        required: true
+        default: 'gemini'
+        type: choice
+        options:
+          - gemini
+          - claude
+          - openrouter
+          - opencode
+      llm_api_key:
+        description: 'Your API Key (Optional if already in Secrets)'
+        required: false
+
+jobs:
+  process-and-post:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          cache: 'pip'
+
+      - name: Install System Dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Install Python Dependencies
+        run: |
+          pip install -r requirements.txt
+          playwright install chromium
+
+      - name: Run Pipeline
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+          TIKTOK_COOKIES_CONTENT: ${{ secrets.TIKTOK_COOKIES_CONTENT }}
+        run: python main.py "${{ github.event.inputs.video_url }}" "${{ github.event.inputs.llm_provider }}" "${{ github.event.inputs.llm_api_key }}"
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: viral-clips
+          path: output/

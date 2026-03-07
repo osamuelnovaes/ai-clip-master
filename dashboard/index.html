@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Clip Master - Dashboard</title>
+    <style>
+        :root { --bg: #0f172a; --card: #1e293b; --text: #f8fafc; --primary: #3b82f6; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: var(--card); padding: 2.5rem; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 450px; }
+        h1 { font-size: 1.5rem; text-align: center; margin-bottom: 2rem; color: #60a5fa; }
+        .form-group { margin-bottom: 1.5rem; }
+        label { display: block; font-size: 0.875rem; margin-bottom: 0.5rem; opacity: 0.8; }
+        input, select { width: 100%; padding: 0.75rem; border-radius: 0.5rem; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; }
+        button { width: 100%; padding: 0.875rem; background: var(--primary); color: white; border: none; border-radius: 0.5rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 1rem; }
+        button:hover { filter: brightness(1.2); transform: translateY(-2px); }
+        .status { margin-top: 1.5rem; font-size: 0.875rem; text-align: center; display: none; padding: 10px; border-radius: 5px; }
+        .success { background: #065f46; color: #34d399; display: block; }
+        .error { background: #7f1d1d; color: #f87171; display: block; }
+        .github-hint { font-size: 0.7rem; color: #94a3b8; text-align: center; margin-top: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎬 AI Clip Master</h1>
+        
+        <div class="form-group">
+            <label>Link do YouTube</label>
+            <input type="text" id="video_url" placeholder="https://youtube.com/watch?v=...">
+        </div>
+
+        <div class="form-group">
+            <label>Provedor de IA</label>
+            <select id="llm_provider">
+                <option value="gemini">Google Gemini</option>
+                <option value="claude">Anthropic Claude</option>
+                <option value="openrouter">OpenRouter (GPT-4/Llama)</option>
+                <option value="opencode">OpenCode Zen</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label>Sua API Key</label>
+            <input type="password" id="llm_api_key" placeholder="Cole sua chave aqui">
+        </div>
+
+        <div class="form-group">
+            <label>GitHub Personal Access Token (PAT)</label>
+            <input type="password" id="github_token" placeholder="Token com escopo 'workflow'">
+            <p style="font-size: 0.65rem; color: #94a3b8;">*Necessário para disparar o robô pelo navegador.</p>
+        </div>
+
+        <button onclick="triggerWorkflow()">🚀 Gerar Cortes e Postar</button>
+
+        <div id="statusBox" class="status"></div>
+
+        <div class="github-hint">
+            O processamento ocorre no GitHub Actions em background.
+        </div>
+    </div>
+
+    <script>
+        async function triggerWorkflow() {
+            const video_url = document.getElementById('video_url').value;
+            const llm_provider = document.getElementById('llm_provider').value;
+            const llm_api_key = document.getElementById('llm_api_key').value;
+            const github_token = document.getElementById('github_token').value;
+            const statusBox = document.getElementById('statusBox');
+
+            if (!video_url || !github_token) {
+                statusBox.innerText = "❌ URL e GitHub Token são obrigatórios!";
+                statusBox.className = "status error";
+                return;
+            }
+
+            statusBox.innerText = "⏳ Enviando comando para o GitHub...";
+            statusBox.className = "status";
+            statusBox.style.display = "block";
+
+            // GitHub Repository Info (Auto-detecting based on current context placeholder)
+            // Note: In a real deploy, user must put their username/repo
+            const GITHUB_USER = "osamuelnovaes"; 
+            const GITHUB_REPO = "ai-clip-master";
+
+            const url = `https://api.github.com/repos/${GITHUB_USER}/${GITHUB_REPO}/actions/workflows/run-pipeline.yml/dispatches`;
+
+            try {
+                const response = await fetch(url, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `token ${github_token}`,
+                        'Accept': 'application/vnd.github.v3+json',
+                    },
+                    body: JSON.stringify({
+                        ref: 'main',
+                        inputs: {
+                            video_url: video_url,
+                            llm_provider: llm_provider,
+                            llm_api_key: llm_api_key
+                        }
+                    })
+                });
+
+                if (response.status === 204) {
+                    statusBox.innerText = "✅ Sucesso! O robô começou a trabalhar. Confira a aba 'Actions' no seu GitHub.";
+                    statusBox.className = "status success";
+                } else {
+                    const error = await response.json();
+                    statusBox.innerText = "❌ Erro: " + error.message;
+                    statusBox.className = "status error";
+                }
+            } catch (err) {
+                statusBox.innerText = "❌ Falha na conexão: " + err.message;
+                statusBox.className = "status error";
+            }
+        }
+    </script>
+</body>
+</html>
