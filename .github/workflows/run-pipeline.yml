@@ -54,6 +54,16 @@ jobs:
           TIKTOK_COOKIES_CONTENT: ${{ secrets.TIKTOK_COOKIES_CONTENT }}
         run: python main.py "${{ github.event.inputs.video_url }}" "${{ github.event.inputs.llm_provider }}" "${{ github.event.inputs.llm_api_key }}"
 
+      - name: Save Clips to Dashboard
+        run: |
+          mkdir -p dashboard/clips
+          cp output/*.mp4 dashboard/clips/
+          git config --global user.name "AI Clip Master Bot"
+          git config --global user.email "bot@ai-clip-master.com"
+          git add dashboard/clips/*.mp4
+          git commit -m "Results: New clips generated for ${{ github.event.inputs.video_url }}" || echo "No changes to commit"
+          git push origin main
+
       - name: Upload Artifacts
         uses: actions/upload-artifact@v4
         with:
