@@ -46,11 +46,16 @@
 
         <div class="form-group">
             <label>GitHub Personal Access Token (PAT)</label>
-            <input type="password" id="github_token" placeholder="Token com escopo 'workflow'">
-            <p style="font-size: 0.65rem; color: #94a3b8;">*Necessário para disparar o robô pelo navegador.</p>
+            <div style="display: flex; gap: 5px;">
+                <input type="password" id="github_token" placeholder="Token ghp_...">
+                <button onclick="saveToken()" style="width: auto; margin-top: 0; padding: 5px 15px; background: #10b981;">Salvar</button>
+            </div>
+            <a href="https://github.com/settings/tokens/new?description=AI-CLIP-MASTER&scopes=workflow" target="_blank" style="font-size: 0.7rem; color: #3b82f6; text-decoration: none; display: block; margin-top: 5px;">
+                + Clique aqui para gerar um novo token (Selecione 'workflow')
+            </a>
         </div>
 
-        <button onclick="triggerWorkflow()">🚀 Gerar Cortes e Postar</button>
+        <button id="mainBtn" onclick="triggerWorkflow()">🚀 Gerar Cortes e Postar</button>
 
         <div id="statusBox" class="status"></div>
 
@@ -60,6 +65,20 @@
     </div>
 
     <script>
+        // Carregar token salvo ao abrir a página
+        window.onload = () => {
+            const savedToken = localStorage.getItem('gh_pat_clip_master');
+            if (savedToken) {
+                document.getElementById('github_token').value = savedToken;
+            }
+        };
+
+        function saveToken() {
+            const token = document.getElementById('github_token').value;
+            localStorage.setItem('gh_pat_clip_master', token);
+            alert("✅ Token salvo com sucesso no seu navegador!");
+        }
+
         async function triggerWorkflow() {
             const video_url = document.getElementById('video_url').value;
             const llm_provider = document.getElementById('llm_provider').value;
