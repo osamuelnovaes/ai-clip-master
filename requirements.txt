@@ -1,0 +1,7 @@
+openai-whisper
+yt-dlp
+moviepy
+google-generativeai
+python-dotenv
+tiktok-uploader
+playwright
