@@ -14,19 +14,22 @@ def find_viral_clips(transcription, provider=None, api_key=None):
         return []
 
     prompt = f"""
-    Analyze the following transcription of a podcast/video. 
-    Find the 3 most viral, emotional, or interesting moments (hooks).
-    For each moment, provide:
-    1. Start time (seconds)
-    2. End time (seconds)
-    3. Suggested Title/Caption
+    Você é um Editor de Redes Sociais Senior especializado em viralização no TikTok, Reels e Shorts.
+    Sua tarefa é analisar a transcrição abaixo e extrair os 3 momentos com maior potencial de VIRALIZAÇÃO.
     
-    Transcription:
+    DIRETRIZES DE EDIÇÃO:
+    1. GANCHO FORTE: O corte deve começar com uma frase impactante, uma pergunta curiosa ou uma afirmação forte.
+    2. CONTEXTO COMPLETO: Não corte apenas a frase final. Inclua a explicação e o raciocínio que leva ao momento principal.
+    3. DURAÇÃO IDEAL: Cada corte deve ter entre 30 a 70 segundos. Menos que isso perde o contexto, mais que isso perde a retenção.
+    4. PENSAMENTO COMPLETO: Certifique-se de que o corte termine após a conclusão de uma ideia, evitando cortes abruptos no meio da fala.
+    5. ESTILO: Busque momentos de "sabedoria", "polêmica", "humor" ou "emoção intensa".
+    
+    Transcrição:
     {json.dumps(transcription)}
     
-    Return ONLY a JSON array like:
+    Retorne APENAS um array JSON com exatamente 3 objetos:
     [
-      {{"start": 10.5, "end": 45.0, "caption": "The secret to success"}},
+      {{"start": tempo_inicio_float, "end": tempo_fim_float, "caption": "Título Viral e Chamativo"}},
       ...
     ]
     """
