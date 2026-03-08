@@ -52,6 +52,7 @@ jobs:
           CLAUDE_API_KEY: ${{ secrets.CLAUDE_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
           TIKTOK_COOKIES_CONTENT: ${{ secrets.TIKTOK_COOKIES_CONTENT }}
+          YOUTUBE_COOKIES_CONTENT: ${{ secrets.YOUTUBE_COOKIES_CONTENT }}
         run: python main.py "${{ github.event.inputs.video_url }}" "${{ github.event.inputs.llm_provider }}" "${{ github.event.inputs.llm_api_key }}"
 
       - name: Save Clips to Dashboard

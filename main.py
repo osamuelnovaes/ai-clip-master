@@ -22,20 +22,29 @@ def main():
     os.makedirs('temp', exist_ok=True)
     os.makedirs('output', exist_ok=True)
 
-    # 1. Download
-    video_path = download_video(url, 'temp/input.mp4')
+    # 1. Prepare YouTube Cookies if available
+    cookies_path = None
+    yt_cookies_content = os.getenv("YOUTUBE_COOKIES_CONTENT")
+    if yt_cookies_content:
+        cookies_path = 'temp/youtube_cookies.txt'
+        with open(cookies_path, 'w') as f:
+            f.write(yt_cookies_content)
+        print("YouTube Cookies detected and prepared.")
 
-    # 2. Transcribe
+    # 2. Download
+    video_path = download_video(url, 'temp/input.mp4', cookies_path=cookies_path)
+
+    # 3. Transcribe
     transcription = transcribe_video(video_path, os.getenv("MODEL_SIZE", "tiny"))
 
-    # 3. Analyze (Using Multi-Provider Logic)
+    # 4. Analyze (Using Multi-Provider Logic)
     clips_data = find_viral_clips(transcription, provider=provider, api_key=api_key)
     print(f"Viral Clips Found via {provider}: {clips_data}")
 
-    # 4. Create Clips
+    # 5. Create Clips
     create_clips(video_path, clips_data, 'output')
 
-    # 5. Publish Clips
+    # 6. Publish Clips
     print("Starting publishing phase...")
     for i, clip_info in enumerate(clips_data):
         clip_path = f"output/clip_{i+1}.mp4"
