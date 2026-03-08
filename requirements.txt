@@ -2,7 +2,7 @@ setuptools
 openai-whisper
 yt-dlp
 moviepy==1.0.3
-google-generativeai
+google-generativeai>=0.8.3
 python-dotenv
 tiktok-uploader
 playwright

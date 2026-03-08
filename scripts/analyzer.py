@@ -34,7 +34,8 @@ def find_viral_clips(transcription, provider=None, api_key=None):
     if provider == "gemini":
         import google.generativeai as genai
         genai.configure(api_key=api_key)
-        model = genai.GenerativeModel('gemini-1.5-flash')
+        # Using gemini-1.5-flash-latest for better endpoint resolution
+        model = genai.GenerativeModel('gemini-1.5-flash-latest')
         response = model.generate_content(prompt)
         return _parse_json(response.text)
 
