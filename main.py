@@ -1,6 +1,8 @@
-import setuptools # Fix for Python 3.14+ pkg_resources issue
-import os
 import sys
+from scripts import pkg_resources
+sys.modules['pkg_resources'] = pkg_resources # Monkey-patch global sys.modules
+
+import os
 from dotenv import load_dotenv
 from scripts.downloader import download_video
 from scripts.transcriber import transcribe_video
