@@ -1,6 +1,7 @@
 import os
 import json
 import requests
+from google import genai
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -32,15 +33,19 @@ def find_viral_clips(transcription, provider=None, api_key=None):
     """
 
     if provider == "gemini":
-        import google.generativeai as genai
-        genai.configure(api_key=api_key)
-        # Using gemini-1.5-flash-latest for better endpoint resolution
-        model = genai.GenerativeModel('gemini-1.5-flash-latest')
-        response = model.generate_content(prompt)
-        return _parse_json(response.text)
+        try:
+            client = genai.Client(api_key=api_key)
+            response = client.models.generate_content(
+                model='gemini-2.0-flash',
+                contents=prompt,
+            )
+            return _parse_json(response.text)
+        except Exception as e:
+            print(f"❌ Erro no Gemini GenAI: {e}")
+            return []
 
     elif provider == "claude":
-        # Anthropic API implementation
+        # Anthropic API remains the same
         headers = {
             "x-api-key": api_key,
             "anthropic-version": "2023-06-01",
@@ -53,24 +58,6 @@ def find_viral_clips(transcription, provider=None, api_key=None):
         }
         response = requests.post("https://api.anthropic.com/v1/messages", headers=headers, json=data)
         return _parse_json(response.json()['content'][0]['text'])
-
-    elif provider == "openrouter":
-        headers = {
-            "Authorization": f"Bearer {api_key}",
-            "Content-Type": "application/json"
-        }
-        data = {
-            "model": "google/gemini-flash-1.5", # Default cheap/fast model
-            "messages": [{"role": "user", "content": prompt}]
-        }
-        response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=data)
-        return _parse_json(response.json()['choices'][0]['message']['content'])
-
-    elif provider == "opencode":
-        # Custom implementation for OpenCode Zen/Zero
-        print("Using OpenCode Zen integration...")
-        # Add custom OpenCode logic here
-        return []
 
     return []
 
