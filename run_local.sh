@@ -44,7 +44,7 @@ fi
 
 # 7. Rodar o motor
 echo "🎬 Processando vídeo... (Isso pode levar alguns minutos)"
-python3 main.py "$VIDEO_URL" "gemini"
+python3 main.py "$VIDEO_URL"
 
 echo ""
 echo "🚚 Movendo cortes para a sua pasta de Downloads..."
