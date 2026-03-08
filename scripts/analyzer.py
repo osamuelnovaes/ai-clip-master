@@ -54,7 +54,7 @@ def find_viral_clips(transcription, provider=None, api_key=None):
             "Content-Type": "application/json"
         }
         data = {
-            "model": "meta/llama-3.1-405b-instruct", # Modelo top da NVIDIA
+            "model": "meta/llama-3.1-70b-instruct", 
             "messages": [{"role": "user", "content": prompt}],
             "temperature": 0.2,
             "top_p": 0.7,
@@ -62,11 +62,15 @@ def find_viral_clips(transcription, provider=None, api_key=None):
         }
         try:
             response = requests.post(url, headers=headers, json=data)
+            if response.status_code != 200:
+                print(f"❌ Erro HTTP NVIDIA ({response.status_code}): {response.text}")
+                return []
+            
             response_json = response.json()
             if 'choices' in response_json:
                 text = response_json['choices'][0]['message']['content']
                 return _parse_json(text)
-            print(f"❌ Erro na API da NVIDIA: {response_json}")
+            print(f"❌ Resposta inesperada da NVIDIA: {response_json}")
         except Exception as e:
             print(f"❌ Falha NVIDIA: {e}")
 
