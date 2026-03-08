@@ -1,7 +1,9 @@
 openai-whisper
 yt-dlp
-moviepy
+moviepy==1.0.3
 google-generativeai
 python-dotenv
 tiktok-uploader
 playwright
+imageio==2.25.1
+imageio-ffmpeg==0.4.8
