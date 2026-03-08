@@ -1,3 +1,4 @@
+import setuptools # Fix for Python 3.14+ pkg_resources issue
 import os
 import sys
 from dotenv import load_dotenv
