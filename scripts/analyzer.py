@@ -35,42 +35,40 @@ def find_viral_clips(transcription, provider=None, api_key=None):
         print("Using Universal Gemini API Call...")
         url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
         headers = {'Content-Type': 'application/json'}
+        data = { "contents": [{ "parts": [{"text": prompt}] }] }
+        try:
+            response = requests.post(url, headers=headers, json=data)
+            response_json = response.json()
+            if 'candidates' in response_json:
+                text = response_json['candidates'][0]['content']['parts'][0]['text']
+                return _parse_json(text)
+            print(f"❌ Erro na API do Gemini: {response_json}")
+        except Exception as e:
+            print(f"❌ Falha Gemini: {e}")
+
+    elif provider == "nvidia":
+        print("Using NVIDIA NIM API Call (Llama 3)...")
+        url = "https://integrate.api.nvidia.com/v1/chat/completions"
+        headers = {
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        }
         data = {
-            "contents": [{
-                "parts": [{"text": prompt}]
-            }]
+            "model": "meta/llama-3.1-405b-instruct", # Modelo top da NVIDIA
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.2,
+            "top_p": 0.7,
+            "max_tokens": 1024
         }
         try:
             response = requests.post(url, headers=headers, json=data)
             response_json = response.json()
-            
-            if 'candidates' in response_json:
-                text = response_json['candidates'][0]['content']['parts'][0]['text']
+            if 'choices' in response_json:
+                text = response_json['choices'][0]['message']['content']
                 return _parse_json(text)
-            else:
-                print(f"❌ Erro na API do Gemini: {response_json}")
-                return []
+            print(f"❌ Erro na API da NVIDIA: {response_json}")
         except Exception as e:
-            print(f"❌ Falha na requisição Gemini: {e}")
-            return []
-
-    elif provider == "claude":
-        headers = {
-            "x-api-key": api_key,
-            "anthropic-version": "2023-06-01",
-            "content-type": "application/json"
-        }
-        data = {
-            "model": "claude-3-haiku-20240307",
-            "max_tokens": 1024,
-            "messages": [{"role": "user", "content": prompt}]
-        }
-        try:
-            response = requests.post("https://api.anthropic.com/v1/messages", headers=headers, json=data)
-            return _parse_json(response.json()['content'][0]['text'])
-        except Exception as e:
-            print(f"❌ Erro na API do Claude: {e}")
-            return []
+            print(f"❌ Falha NVIDIA: {e}")
 
     return []
 
