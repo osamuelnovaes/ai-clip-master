@@ -36,7 +36,7 @@ def find_viral_clips(transcription, provider=None, api_key=None):
         try:
             client = genai.Client(api_key=api_key)
             response = client.models.generate_content(
-                model='gemini-2.0-flash',
+                model='gemini-1.5-flash',
                 contents=prompt,
             )
             return _parse_json(response.text)
