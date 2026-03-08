@@ -59,7 +59,10 @@
 
         <div id="statusBox" class="status"></div>
 
-        <h2 style="margin-top: 2.5rem; font-size: 1.2rem; border-top: 1px solid #334155; padding-top: 1.5rem;">🎬 Meus Cortes Gerados</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 2.5rem; border-top: 1px solid #334155; padding-top: 1.5rem;">
+            <h2 style="font-size: 1.2rem; margin: 0;">🎬 Meus Cortes Gerados</h2>
+            <button onclick="loadClips()" style="width: auto; margin: 0; padding: 5px 10px; font-size: 0.7rem; background: #475569;">🔄 Atualizar</button>
+        </div>
         <div id="gallery" style="display: grid; grid-template-columns: 1fr; gap: 1rem; margin-top: 1rem;">
             <!-- Vídeos serão carregados aqui -->
             <p style="font-size: 0.8rem; opacity: 0.6; text-align: center;">Os vídeos aparecerão aqui após o processamento.</p>
