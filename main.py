@@ -2,6 +2,14 @@ import sys
 from scripts import pkg_resources
 sys.modules['pkg_resources'] = pkg_resources # Monkey-patch global sys.modules
 
+# Pillow Patch for MoviePy compatibility
+try:
+    from PIL import Image
+    if not hasattr(Image, 'ANTIALIAS'):
+        Image.ANTIALIAS = Image.Resampling.LANCZOS if hasattr(Image, 'Resampling') else 1
+except ImportError:
+    pass
+
 import os
 from dotenv import load_dotenv
 from scripts.downloader import download_video
