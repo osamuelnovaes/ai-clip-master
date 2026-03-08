@@ -1,7 +1,6 @@
 import os
 import json
 import requests
-from google import genai
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -33,19 +32,29 @@ def find_viral_clips(transcription, provider=None, api_key=None):
     """
 
     if provider == "gemini":
+        print("Using Universal Gemini API Call...")
+        url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={api_key}"
+        headers = {'Content-Type': 'application/json'}
+        data = {
+            "contents": [{
+                "parts": [{"text": prompt}]
+            }]
+        }
         try:
-            client = genai.Client(api_key=api_key)
-            response = client.models.generate_content(
-                model='gemini-1.5-flash',
-                contents=prompt,
-            )
-            return _parse_json(response.text)
+            response = requests.post(url, headers=headers, json=data)
+            response_json = response.json()
+            
+            if 'candidates' in response_json:
+                text = response_json['candidates'][0]['content']['parts'][0]['text']
+                return _parse_json(text)
+            else:
+                print(f"❌ Erro na API do Gemini: {response_json}")
+                return []
         except Exception as e:
-            print(f"❌ Erro no Gemini GenAI: {e}")
+            print(f"❌ Falha na requisição Gemini: {e}")
             return []
 
     elif provider == "claude":
-        # Anthropic API remains the same
         headers = {
             "x-api-key": api_key,
             "anthropic-version": "2023-06-01",
@@ -56,8 +65,12 @@ def find_viral_clips(transcription, provider=None, api_key=None):
             "max_tokens": 1024,
             "messages": [{"role": "user", "content": prompt}]
         }
-        response = requests.post("https://api.anthropic.com/v1/messages", headers=headers, json=data)
-        return _parse_json(response.json()['content'][0]['text'])
+        try:
+            response = requests.post("https://api.anthropic.com/v1/messages", headers=headers, json=data)
+            return _parse_json(response.json()['content'][0]['text'])
+        except Exception as e:
+            print(f"❌ Erro na API do Claude: {e}")
+            return []
 
     return []
 
