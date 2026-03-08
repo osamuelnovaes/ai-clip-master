@@ -13,24 +13,36 @@ def find_viral_clips(transcription, provider=None, api_key=None):
         print(f"Error: API Key for {provider} not found.")
         return []
 
+    # Prompt de Nível Especialista com Chain of Thought
     prompt = f"""
-    Você é um Editor de Redes Sociais Senior especializado em viralização no TikTok, Reels e Shorts.
-    Sua tarefa é analisar a transcrição abaixo e extrair os 3 momentos com maior potencial de VIRALIZAÇÃO.
-    
-    DIRETRIZES DE EDIÇÃO:
-    1. GANCHO FORTE: O corte deve começar com uma frase impactante, uma pergunta curiosa ou uma afirmação forte.
-    2. CONTEXTO COMPLETO: Não corte apenas a frase final. Inclua a explicação e o raciocínio que leva ao momento principal.
-    3. DURAÇÃO IDEAL: Cada corte deve ter entre 30 a 70 segundos. Menos que isso perde o contexto, mais que isso perde a retenção.
-    4. PENSAMENTO COMPLETO: Certifique-se de que o corte termine após a conclusão de uma ideia, evitando cortes abruptos no meio da fala.
-    5. ESTILO: Busque momentos de "sabedoria", "polêmica", "humor" ou "emoção intensa".
-    
+    Você é um Especialista em Retenção de Audiência e Algoritmos do TikTok/Reels.
+    Sua missão é salvar um canal do YouTube extraindo os momentos MAIS EXPLOSIVOS da transcrição abaixo.
+
+    FASE 1: ANÁLISE DE VALOR
+    Identifique os momentos que contêm:
+    - Revelações contra-intuitivas (quebras de padrão).
+    - Conselhos práticos imediatos ("Como fazer X").
+    - Momentos de alta carga emocional (raiva, alegria, surpresa).
+    - Frases que servem como "quotes" inspiradores.
+
+    FASE 2: CRITÉRIOS DE SELEÇÃO (DOD)
+    1. O corte DEVE começar com uma frase que prenda a atenção nos primeiros 3 segundos.
+    2. O corte DEVE ter entre 40 e 80 segundos para garantir contexto profundo.
+    3. O corte DEVE terminar exatamente após um insight ser concluído.
+    4. Adicione uma margem de segurança: se o momento importante começa em 10s, sugira o início em 8s.
+
     Transcrição:
     {json.dumps(transcription)}
     
-    Retorne APENAS um array JSON com exatamente 3 objetos:
+    Responda APENAS um JSON puro (sem explicações fora do JSON):
     [
-      {{"start": tempo_inicio_float, "end": tempo_fim_float, "caption": "Título Viral e Chamativo"}},
-      ...
+      {{
+        "start": float, 
+        "end": float, 
+        "caption": "Título Viral (Ex: A verdade que ninguém te conta sobre...)",
+        "reasoning": "Breve explicação do porquê esse momento vai viralizar"
+      }},
+      ... (exatamente 3 cortes)
     ]
     """
 
@@ -59,9 +71,8 @@ def find_viral_clips(transcription, provider=None, api_key=None):
         data = {
             "model": "meta/llama-3.1-70b-instruct", 
             "messages": [{"role": "user", "content": prompt}],
-            "temperature": 0.2,
-            "top_p": 0.7,
-            "max_tokens": 1024
+            "temperature": 0.1, # Menor temperatura = mais foco e menos "loucura"
+            "max_tokens": 2048
         }
         try:
             response = requests.post(url, headers=headers, json=data)
@@ -73,7 +84,6 @@ def find_viral_clips(transcription, provider=None, api_key=None):
             if 'choices' in response_json:
                 text = response_json['choices'][0]['message']['content']
                 return _parse_json(text)
-            print(f"❌ Resposta inesperada da NVIDIA: {response_json}")
         except Exception as e:
             print(f"❌ Falha NVIDIA: {e}")
 
