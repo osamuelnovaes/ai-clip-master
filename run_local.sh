@@ -38,5 +38,9 @@ echo "🎬 Processando vídeo... (Aguarde alguns minutos)"
 python3 main.py "$VIDEO_URL" "gemini"
 
 echo ""
-echo "✅ CONCLUÍDO! Verifique os cortes na pasta: output/"
-open output/
+echo "🚚 Movendo cortes para a sua pasta de Downloads..."
+mkdir -p ~/Downloads/AI-CLIPS
+mv output/*.mp4 ~/Downloads/AI-CLIPS/ 2>/dev/null
+
+echo "✅ CONCLUÍDO! Verifique os cortes em: Downloads/AI-CLIPS"
+open ~/Downloads/AI-CLIPS
